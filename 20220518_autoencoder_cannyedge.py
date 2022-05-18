@@ -30,18 +30,25 @@ class NoiseEdgeAutoEncoder(nn.Module):
     )
 
   def edgeDetect(self, x):
-    edges = cv2.Laplacian(x, -1)
+    edges = []
+    
+    for item in x:
+        edge =cv2.Laplacian(item, -1)
+        edges.append(edge)
+    edges = torch.Tensor(np.array(edges))
     return edges
 
   def forward(self, x):
     out = x.view(x.size(0), -1)
-    edge = self.edgeDetect(x)
-    edge = edge.view(x.size(0), -1)
+    
+    edge = x.numpy()
+    edge = self.edgeDetect(edge)
+    edge = edge.view(edge.size(0), -1)
 
     out = self.encoder(out)
     edge = self.encoder(edge)
 
-    out = out + torch.Tensor(self.noise).cuda() + edge
+    out = out + torch.Tensor(self.noise) + edge
 
     out = self.decoder(out)
     out = out.view(x.size())
