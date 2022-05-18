@@ -49,7 +49,7 @@ class NoiseEdgeAutoEncoder(nn.Module):
     out = self.encoder(out)
     edge = self.encoder(edge)
 
-    out = out + torch.Tensor(self.noise) + edge
+    out = out + torch.Tensor(self.noise).to(device) + edge
 
     out = self.decoder(out)
     out = out.view(x.size())
