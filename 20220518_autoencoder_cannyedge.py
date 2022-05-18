@@ -41,9 +41,10 @@ class NoiseEdgeAutoEncoder(nn.Module):
   def forward(self, x):
     out = x.view(x.size(0), -1)
     
-    edge = x.numpy()
+    edge = x.cpu().numpy()
     edge = self.edgeDetect(edge)
     edge = edge.view(edge.size(0), -1)
+    edge = edge.to(device)
 
     out = self.encoder(out)
     edge = self.encoder(edge)
@@ -125,10 +126,10 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(dataset = test_dataset, batch_size = batch_size, shuffle=False)
 
     NEAE = NoiseEdgeAutoEncoder(28 * 28, 64, 32)
-    
     loss = nn.MSELoss()
     optimizer = optim.Adam(NEAE.parameters(), lr = learning_rate)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    NEAE = NEAE.to(device)
 
     train(NEAE, Loss = loss, optimizer=optimizer, num_epochs=num_epochs, device=device)
